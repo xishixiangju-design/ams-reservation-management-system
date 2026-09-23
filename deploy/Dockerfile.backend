@@ -1,0 +1,24 @@
+# 使用多阶段构建，减少镜像体积
+# Build Stage
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
+WORKDIR /app
+COPY backend/pom.xml .
+# 预下载依赖，利用缓存
+RUN mvn dependency:go-offline -B
+COPY backend/src ./src
+RUN mvn package -DskipTests
+
+# Run Stage
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
+
+# 设置环境变量
+ENV TZ=Asia/Shanghai
+ENV JAVA_OPTS="-Xms512m -Xmx512m -Djava.security.egd=file:/dev/./urandom"
+
+# 暴露端口
+EXPOSE 8080
+
+# 启动命令
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
