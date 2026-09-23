@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trae.ams.mapper.AmsPricingRuleMapper">
+
+    <resultMap id="BaseResultMap" type="com.trae.ams.entity.AmsPricingRule">
+        <id column="id" property="id" />
+        <result column="store_id" property="storeId" />
+        <result column="service_id" property="serviceId" />
+        <result column="rule_type" property="ruleType" />
+        <result column="min_people" property="minPeople" />
+        <result column="max_people" property="maxPeople" />
+        <result column="adjustment_type" property="adjustmentType" />
+        <result column="adjustment_value" property="adjustmentValue" />
+        <result column="priority" property="priority" />
+        <result column="is_active" property="isActive" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, store_id, service_id, rule_type, min_people, max_people, adjustment_type, adjustment_value, priority, is_active, create_time, update_time
+    </sql>
+
+    <select id="selectRulesByService" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM ams_pricing_rule
+        WHERE store_id = #{storeId}
+          AND is_active = 1
+          AND (service_id = #{serviceId} OR service_id IS NULL)
+        ORDER BY priority DESC, min_people ASC
+    </select>
+
+    <insert id="insert" parameterType="com.trae.ams.entity.AmsPricingRule" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ams_pricing_rule (
+            store_id, service_id, rule_type, min_people, max_people, adjustment_type, adjustment_value, priority, is_active, create_time, update_time
+        ) VALUES (
+            #{storeId}, #{serviceId}, #{ruleType}, #{minPeople}, #{maxPeople}, #{adjustmentType}, #{adjustmentValue}, #{priority}, #{isActive}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.trae.ams.entity.AmsPricingRule">
+        UPDATE ams_pricing_rule
+        <set>
+            <if test="ruleType != null">rule_type = #{ruleType},</if>
+            <if test="minPeople != null">min_people = #{minPeople},</if>
+            <if test="maxPeople != null">max_people = #{maxPeople},</if>
+            <if test="adjustmentType != null">adjustment_type = #{adjustmentType},</if>
+            <if test="adjustmentValue != null">adjustment_value = #{adjustmentValue},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="isActive != null">is_active = #{isActive},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM ams_pricing_rule WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM ams_pricing_rule WHERE id = #{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trae.ams.mapper.SysNotificationMapper">
+
+    <resultMap id="BaseResultMap" type="com.trae.ams.entity.SysNotification">
+        <id column="id" property="id" />
+        <result column="store_id" property="storeId" />
+        <result column="user_id" property="userId" />
+        <result column="type" property="type" />
+        <result column="title" property="title" />
+        <result column="content" property="content" />
+        <result column="target" property="target" />
+        <result column="status" property="status" />
+        <result column="read_status" property="readStatus" />
+        <result column="error_msg" property="errorMsg" />
+        <result column="create_time" property="createTime" />
+        <result column="send_time" property="sendTime" />
+    </resultMap>
+
+    <insert id="insert" parameterType="com.trae.ams.entity.SysNotification" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_notification (
+            store_id, user_id, type, title, content, target, status, read_status, error_msg, create_time, send_time
+        ) VALUES (
+            #{storeId}, #{userId}, #{type}, #{title}, #{content}, #{target}, #{status}, #{readStatus}, #{errorMsg}, #{createTime}, #{sendTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.trae.ams.entity.SysNotification">
+        UPDATE sys_notification
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="readStatus != null">read_status = #{readStatus},</if>
+            <if test="sendTime != null">send_time = #{sendTime},</if>
+            <if test="errorMsg != null">error_msg = #{errorMsg},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT * FROM sys_notification
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByUserIdAndType" resultMap="BaseResultMap">
+        SELECT * FROM sys_notification
+        WHERE user_id = #{userId} AND type = #{type}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="countUnreadByUserIdAndType" resultType="long">
+        SELECT COUNT(*) FROM sys_notification
+        WHERE user_id = #{userId} AND type = #{type} AND read_status = 0
+    </select>
+
+    <update id="updateReadStatus">
+        UPDATE sys_notification
+        SET read_status = #{readStatus}
+        WHERE id = #{id}
+    </update>
+
+    <update id="markAllAsRead">
+        UPDATE sys_notification
+        SET read_status = 1
+        WHERE user_id = #{userId} AND read_status = 0
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM sys_notification WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM sys_notification WHERE id = #{id}
+    </select>
+
+</mapper>

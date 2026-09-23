@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trae.ams.mapper.AmsTechnicianInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.trae.ams.entity.AmsTechnicianInfo">
+        <id column="user_id" property="userId" />
+        <result column="real_name" property="realName" />
+        <result column="level" property="level" />
+        <result column="status" property="status" />
+        <result column="wheel_seq" property="wheelSeq" />
+        <result column="intro_cn" property="introCn" />
+        <result column="intro_jp" property="introJp" />
+        <result column="last_job_end_time" property="lastJobEndTime" />
+        
+        <!-- 关联 SysUser -->
+        <association property="sysUser" javaType="com.trae.ams.entity.SysUser">
+            <id column="u_id" property="id"/>
+            <result column="u_username" property="username"/>
+            <result column="u_nickname" property="nickname"/>
+            <result column="u_avatar" property="avatar"/>
+            <result column="u_status" property="status"/>
+        </association>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        t.user_id, t.real_name, t.level, t.status, t.wheel_seq, t.intro_cn, t.intro_jp, t.last_job_end_time
+    </sql>
+    
+    <sql id="User_Column_List">
+        u.id as u_id, u.username as u_username, u.nickname as u_nickname, u.avatar as u_avatar, u.status as u_status
+    </sql>
+
+    <select id="selectByUserIds" resultMap="BaseResultMap">
+        SELECT 
+            <include refid="Base_Column_List"/>,
+            <include refid="User_Column_List"/>
+        FROM ams_technician_info t
+        LEFT JOIN sys_user u ON t.user_id = u.id
+        WHERE t.user_id IN
+        <foreach collection="userIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT 
+            <include refid="Base_Column_List"/>,
+            <include refid="User_Column_List"/>
+        FROM ams_technician_info t
+        LEFT JOIN sys_user u ON t.user_id = u.id
+        WHERE t.user_id = #{userId}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT 
+            <include refid="Base_Column_List"/>,
+            <include refid="User_Column_List"/>
+        FROM ams_technician_info t
+        LEFT JOIN sys_user u ON t.user_id = u.id
+        <where>
+            <if test="storeId != null">
+                AND u.store_id = #{storeId}
+            </if>
+            <if test="status != null and status != ''">
+                AND t.status = #{status}
+            </if>
+            <if test="name != null and name != ''">
+                AND (t.real_name LIKE CONCAT('%', #{name}, '%') OR u.nickname LIKE CONCAT('%', #{name}, '%'))
+            </if>
+        </where>
+        ORDER BY (t.status = 'IDLE') DESC, t.last_job_end_time ASC, t.wheel_seq ASC, t.user_id ASC
+    </select>
+
+    <insert id="insert" parameterType="com.trae.ams.entity.AmsTechnicianInfo">
+        INSERT INTO ams_technician_info (
+            user_id, real_name, level, status, wheel_seq, intro_cn, intro_jp, last_job_end_time
+        ) VALUES (
+            #{userId}, #{realName}, #{level}, #{status}, #{wheelSeq}, #{introCn}, #{introJp}, #{lastJobEndTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.trae.ams.entity.AmsTechnicianInfo">
+        UPDATE ams_technician_info
+        <set>
+            <if test="realName != null">real_name = #{realName},</if>
+            <if test="level != null">level = #{level},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="wheelSeq != null">wheel_seq = #{wheelSeq},</if>
+            <if test="introCn != null">intro_cn = #{introCn},</if>
+            <if test="introJp != null">intro_jp = #{introJp},</if>
+            <if test="lastJobEndTime != null">last_job_end_time = #{lastJobEndTime},</if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <delete id="deleteByUserId">
+        DELETE FROM ams_technician_info WHERE user_id = #{userId}
+    </delete>
+
+</mapper>

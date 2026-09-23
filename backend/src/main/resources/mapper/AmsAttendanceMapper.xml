@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.trae.ams.mapper.AmsAttendanceMapper">
+
+    <resultMap id="BaseResultMap" type="com.trae.ams.entity.AmsAttendance">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="store_id" property="storeId" jdbcType="BIGINT"/>
+        <result column="tech_id" property="techId" jdbcType="BIGINT"/>
+        <result column="type" property="type" jdbcType="VARCHAR"/>
+        <result column="time" property="time" jdbcType="TIMESTAMP"/>
+        <result column="location" property="location" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="techName" property="techName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        t.id, t.store_id, t.tech_id, t.type, t.time, t.location, t.status, t.create_time
+    </sql>
+
+    <insert id="insert" parameterType="com.trae.ams.entity.AmsAttendance" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ams_attendance (store_id, tech_id, type, time, location, status, create_time)
+        VALUES (#{storeId}, #{techId}, #{type}, #{time}, #{location}, #{status}, #{createTime})
+    </insert>
+
+    <update id="update" parameterType="com.trae.ams.entity.AmsAttendance">
+        UPDATE ams_attendance
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="location != null">location = #{location},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectList" parameterType="com.trae.ams.dto.attendance.AttendanceQueryDTO" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>, u.username as techName
+        FROM ams_attendance t
+        LEFT JOIN sys_user u ON t.tech_id = u.id
+        <where>
+            <if test="storeId != null">AND t.store_id = #{storeId}</if>
+            <if test="techId != null">AND t.tech_id = #{techId}</if>
+            <if test="techName != null and techName != ''">AND u.username LIKE CONCAT('%', #{techName}, '%')</if>
+            <if test="status != null and status != ''">AND t.status = #{status}</if>
+            <if test="type != null and type != ''">AND t.type = #{type}</if>
+            <if test="startTime != null">AND t.time &gt;= #{startTime}</if>
+            <if test="endTime != null">AND t.time &lt;= #{endTime}</if>
+        </where>
+        ORDER BY t.time DESC
+    </select>
+</mapper>

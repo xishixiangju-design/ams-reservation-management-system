@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.trae.ams.mapper.AmsLeaveRequestMapper">
+
+    <resultMap id="BaseResultMap" type="com.trae.ams.entity.AmsLeaveRequest">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="store_id" property="storeId" jdbcType="BIGINT"/>
+        <result column="tech_id" property="techId" jdbcType="BIGINT"/>
+        <result column="type" property="type" jdbcType="VARCHAR"/>
+        <result column="start_time" property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="end_time" property="endTime" jdbcType="TIMESTAMP"/>
+        <result column="reason" property="reason" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="audit_by" property="auditBy" jdbcType="BIGINT"/>
+        <result column="audit_time" property="auditTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="techName" property="techName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        t.id, t.store_id, t.tech_id, t.type, t.start_time, t.end_time, t.reason, t.status, 
+        t.audit_by, t.audit_time, t.create_time, t.update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.trae.ams.entity.AmsLeaveRequest" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ams_leave_request (store_id, tech_id, type, start_time, end_time, reason, status, create_time, update_time)
+        VALUES (#{storeId}, #{techId}, #{type}, #{startTime}, #{endTime}, #{reason}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update" parameterType="com.trae.ams.entity.AmsLeaveRequest">
+        UPDATE ams_leave_request
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="auditBy != null">audit_by = #{auditBy},</if>
+            <if test="auditTime != null">audit_time = #{auditTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>, u.username as techName
+        FROM ams_leave_request t
+        LEFT JOIN sys_user u ON t.tech_id = u.id
+        WHERE t.id = #{id}
+    </select>
+
+    <select id="selectList" parameterType="com.trae.ams.dto.attendance.LeaveQueryDTO" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>, u.username as techName
+        FROM ams_leave_request t
+        LEFT JOIN sys_user u ON t.tech_id = u.id
+        <where>
+            <if test="storeId != null">AND t.store_id = #{storeId}</if>
+            <if test="techId != null">AND t.tech_id = #{techId}</if>
+            <if test="techName != null and techName != ''">AND u.username LIKE CONCAT('%', #{techName}, '%')</if>
+            <if test="status != null and status != ''">AND t.status = #{status}</if>
+            <if test="type != null and type != ''">AND t.type = #{type}</if>
+            <if test="startTime != null">AND t.create_time &gt;= #{startTime}</if>
+            <if test="endTime != null">AND t.create_time &lt;= #{endTime}</if>
+        </where>
+        ORDER BY t.create_time DESC
+    </select>
+</mapper>

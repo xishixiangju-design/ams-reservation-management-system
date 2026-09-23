@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trae.ams.mapper.AmsServiceMapper">
+
+    <resultMap id="BaseResultMap" type="com.trae.ams.entity.AmsService">
+        <id column="id" property="id" />
+        <result column="store_id" property="storeId" />
+        <result column="name" property="name" />
+        <result column="name_cn" property="nameCn" />
+        <result column="name_jp" property="nameJp" />
+        <result column="duration" property="duration" />
+        <result column="price" property="price" />
+        <result column="description" property="description" />
+        <result column="description_cn" property="descriptionCn" />
+        <result column="description_jp" property="descriptionJp" />
+        <result column="status" property="status" />
+        <result column="category" property="category" />
+        <result column="scenario" property="scenario" />
+        <result column="recommendation_score" property="recommendationScore" />
+        <result column="mutex_group" property="mutexGroup" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, store_id, name, name_cn, name_jp, duration, price, description, description_cn, description_jp, status, category, scenario, recommendation_score, mutex_group, create_time
+    </sql>
+
+    <select id="selectByIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ams_service
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ams_service
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ams_service
+        <where>
+            <if test="storeId != null">
+                AND store_id = #{storeId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.trae.ams.entity.AmsService" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ams_service (
+            store_id, name, name_cn, name_jp, duration, price, description, description_cn, description_jp, status, category, scenario, recommendation_score, mutex_group, create_time
+        ) VALUES (
+            #{storeId}, #{name}, #{nameCn}, #{nameJp}, #{duration}, #{price}, #{description}, #{descriptionCn}, #{descriptionJp}, #{status}, #{category}, #{scenario}, #{recommendationScore}, #{mutexGroup},
+            <choose>
+                <when test="createTime != null">#{createTime}</when>
+                <otherwise>NOW()</otherwise>
+            </choose>
+        )
+    </insert>
+
+    <update id="update" parameterType="com.trae.ams.entity.AmsService">
+        UPDATE ams_service
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="nameCn != null">name_cn = #{nameCn},</if>
+            <if test="nameJp != null">name_jp = #{nameJp},</if>
+            <if test="duration != null">duration = #{duration},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="descriptionCn != null">description_cn = #{descriptionCn},</if>
+            <if test="descriptionJp != null">description_jp = #{descriptionJp},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="scenario != null">scenario = #{scenario},</if>
+            <if test="recommendationScore != null">recommendation_score = #{recommendationScore},</if>
+            <if test="mutexGroup != null">mutex_group = #{mutexGroup},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM ams_service WHERE id = #{id}
+    </delete>
+
+</mapper>

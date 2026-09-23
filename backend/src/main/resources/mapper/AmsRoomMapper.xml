@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trae.ams.mapper.AmsRoomMapper">
+
+    <resultMap id="BaseResultMap" type="com.trae.ams.entity.AmsRoom">
+        <id column="id" property="id" />
+        <result column="store_id" property="storeId" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="capacity" property="capacity" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, store_id, name, type, capacity, status
+    </sql>
+
+    <select id="selectByIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ams_room
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ams_room
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ams_room
+        <where>
+            <if test="storeId != null">
+                AND store_id = #{storeId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.trae.ams.entity.AmsRoom" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ams_room (
+            store_id, name, type, capacity, status
+        ) VALUES (
+            #{storeId}, #{name}, #{type}, #{capacity}, #{status}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.trae.ams.entity.AmsRoom">
+        UPDATE ams_room
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="capacity != null">capacity = #{capacity},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM ams_room WHERE id = #{id}
+    </delete>
+
+</mapper>

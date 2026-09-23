@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.trae.ams.mapper.AmsTransactionMapper">
+
+    <resultMap id="BaseResultMap" type="com.trae.ams.entity.AmsTransaction">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="store_id" property="storeId" jdbcType="BIGINT"/>
+        <result column="appointment_id" property="appointmentId" jdbcType="BIGINT"/>
+        <result column="trade_no" property="tradeNo" jdbcType="VARCHAR"/>
+        <result column="out_trade_no" property="outTradeNo" jdbcType="VARCHAR"/>
+        <result column="amount" property="amount" jdbcType="DECIMAL"/>
+        <result column="payment_method" property="paymentMethod" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="VARCHAR"/>
+        <result column="related_transaction_id" property="relatedTransactionId" jdbcType="BIGINT"/>
+        <result column="reason" property="reason" jdbcType="VARCHAR"/>
+        <result column="operator" property="operator" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="pay_time" property="payTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.trae.ams.entity.AmsTransaction" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ams_transaction (
+            store_id, appointment_id, trade_no, out_trade_no, 
+            amount, payment_method, status, type, related_transaction_id, reason, operator, create_time, pay_time
+        ) VALUES (
+            #{storeId}, #{appointmentId}, #{tradeNo}, #{outTradeNo}, 
+            #{amount}, #{paymentMethod}, #{status}, #{type}, #{relatedTransactionId}, #{reason}, #{operator}, NOW(), #{payTime}
+        )
+    </insert>
+
+    <select id="selectByOutTradeNo" resultMap="BaseResultMap">
+        SELECT * FROM ams_transaction WHERE out_trade_no = #{outTradeNo}
+    </select>
+
+    <select id="selectSuccessPaymentByAppointmentId" resultMap="BaseResultMap">
+        SELECT * FROM ams_transaction 
+        WHERE appointment_id = #{appointmentId} 
+          AND type = 'PAYMENT' 
+          AND status = 'SUCCESS'
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <update id="updateStatus">
+        UPDATE ams_transaction 
+        SET status = #{status},
+            trade_no = #{tradeNo},
+            payment_method = #{paymentMethod},
+            pay_time = #{payTime}
+        WHERE out_trade_no = #{outTradeNo}
+    </update>
+
+</mapper>

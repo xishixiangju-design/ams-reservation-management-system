@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trae.ams.mapper.AmsTechnicianShiftMapper">
+
+    <resultMap id="BaseResultMap" type="com.trae.ams.entity.AmsTechnicianShift">
+        <id column="id" property="id" />
+        <result column="tech_id" property="techId" />
+        <result column="shift_date" property="shiftDate" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <insert id="insert" parameterType="com.trae.ams.entity.AmsTechnicianShift" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ams_technician_shift (
+            tech_id, shift_date, start_time, end_time, type, create_time, update_time
+        ) VALUES (
+            #{techId}, #{shiftDate}, #{startTime}, #{endTime}, #{type}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.trae.ams.entity.AmsTechnicianShift">
+        UPDATE ams_technician_shift
+        <set>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="type != null">type = #{type},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM ams_technician_shift WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByTechAndDate">
+        DELETE FROM ams_technician_shift 
+        WHERE tech_id = #{techId} AND shift_date = #{date}
+    </delete>
+
+    <select id="selectByTechAndDate" resultMap="BaseResultMap">
+        SELECT * FROM ams_technician_shift
+        WHERE tech_id = #{techId} AND shift_date = #{date}
+        ORDER BY start_time ASC
+    </select>
+
+    <select id="selectByDateRange" resultMap="BaseResultMap">
+        SELECT * FROM ams_technician_shift
+        WHERE tech_id = #{techId} 
+          AND shift_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY shift_date ASC, start_time ASC
+    </select>
+    
+    <select id="selectAllByDate" resultMap="BaseResultMap">
+        SELECT s.*, u.nickname as tech_name 
+        FROM ams_technician_shift s
+        LEFT JOIN sys_user u ON s.tech_id = u.id
+        WHERE s.shift_date = #{date}
+        ORDER BY s.tech_id ASC, s.start_time ASC
+    </select>
+
+</mapper>

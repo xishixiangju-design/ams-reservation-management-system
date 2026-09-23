@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trae.ams.mapper.MemberInfoMapper">
+
+    <insert id="insert" parameterType="com.trae.ams.entity.MemberInfo">
+        INSERT INTO ams_member_info (
+            user_id, store_id, level, balance, violation_count_month, restriction_end_time, allergy_history, service_preference
+        ) VALUES (
+            #{userId}, #{storeId}, #{level}, #{balance}, #{violationCountMonth}, #{restrictionEndTime}, #{allergyHistory}, #{servicePreference}
+        )
+    </insert>
+
+</mapper>

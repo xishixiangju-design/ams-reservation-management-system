@@ -1,0 +1,69 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+  tomcat:
+    threads:
+      max: 50 # Optimization for 20 concurrency
+
+spring:
+  application:
+    name: ams-backend
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/trae_ams?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: root
+    password: "123456" # Updated to actual password
+    hikari:
+      maximum-pool-size: 20 # Optimization for 20 concurrency
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  # Redis removed, using in-memory cache
+
+  mail:
+    host: smtp.163.com
+    port: 465
+    username: ins2192186145@163.com
+    password: KJwVLt8FgvAC5dbv
+    from: ins2192186145@163.com
+    protocol: smtp
+    default-encoding: utf-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            enable: true
+
+jwt:
+  secret: "trae_ams_secret_key_should_be_long_enough_for_hs256_algorithm" # Default secret
+  expiration: 86400000 # 24 hours
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.trae.ams.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # Enable SQL logging for dev
+
+logging:
+  level:
+    com.trae.ams: DEBUG
+    org.springframework: INFO
+
+alipay:
+  app-id: 9021000161666479 # Sandbox App ID (Example)
+  private-key: MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCDlbWJT1ps/Dm0Vo1zEHR7D8N3ww2w0kXSeqBBmzyLdKVMtX7H1ov+4Mgr76Yj7X7bhJchrpWTltLX5PSUkGfo/k/7b4KN9hawO9LLPgWh/3CoyyQraG5jyuzoWkHRkyB3VjG4I4fazhAqkOgPWRkIuopoxPtfrVDgr7N5Xs1zi7k2+25HdTwc2B+qGaz2EJON41jxSq1fzUNW6SRyezKN3s82EiQSRCNTVT1zCD+YEqq0Fc958Q2YKsQOK67FbF16158xyYcIt9utZdEewN3D03j0xNxmAXJKnAZrnhqWLuARpuf737RejNRkDqCfTzKASJ9HL6tT5mqU0TmVhMWtAgMBAAECggEATSQ2giJAXAZeeggH8v4hm4e5S3vRieksP+HeE7hDfWpMAjWg9t0jw6/aCk/7sbJpHZ6Uz40/aYARabpzXKlwEZsOHtTX0AwGbxkTUk2xFbDgRkSZls0pcl2kF+/aCFhdvziL+2zxF2iY96tuMJlGYOSjghqBWC0ObjrzV+MpRWQ66HWZnkbhWxYo54E2ihDtUD/ITeS5O9AshkyvvALsfen7TSoieQg/yUBA8M6VKZlJlt2Fe31WjWq7smjW4XuWQnehFBqTGB1IUZ2NXjcMIRFel8iShgnpuF4cFIoqPyLPmnNDhs9A0vD6QvXPNUFInoBlDa6pPlFzbNIZF7RZIQKBgQDOaokSqrTzwV0dCuPME7+HVmPlyuVLpEIC4G/HyEm7RCexoRhdcgp5ajej+E2gx4IxxKiVn7SGhf+rAHyi2UrkcHFm2uyGb8D+PhuLdiRai37M2q+8L+4FhJ7M+8CawtK4LxCb+Ay2RrEvSx2yGNXKW0m+e123wMj7zTIpy4QR6QKBgQCjMXRqjTdd2/Ct5avQTETU9YvuwE/JO394JjCdZ55bPNo91+O3j0bASB3if8NDNB7HrYdUUxkj2Mw+CENexK0GXqCXV6v84bIDWRb8p0hc65N5ONaC6BGndZ0/SGRQTY2Cs0s5jRxO6F834Kh6FqparhLqsmjE/KjHOsZeD5hXJQKBgAmNgqR7g/5X75A9hcdXDqEbzWnAFxaGFov9iQ7M5SSmhdPBqdgBRBzUXpjXD/il4w+ck1TBXGBxaSCn2BzNQ5sI3SaucQ3TtDHP/ARbRlluZULjyAhEi5ZzycmgyQwgghIGE5W0SBpTcTXIGyq33YUM7n/DQ9YSNPr6Rx0KDyWpAoGAH3HkELPtOzSqB5f9p0FK8g3uTK7ZsNi6ExiovWu9466yDsCOrEv7QgmjWIVtxoFAfRE+xkzMx09662kEMjqLbHLHVuIZzbxfZK3B9CT3mI/79puxGcBFxpKvHgaA7chDwC90Cz7ZeYrk7gtn6z56zMZF9tsxvONCUkFM/8rZe9ECgYBFNIqerW0Wo9BhsiygU7/MghDCduGrl5b+oFJrOTsqKe9hDi9seDozEihSRb5CpFi14MMGGPCIMXmhdVJVEddaq4+HY/F+wR80Igs/oM5sWxH/PrjheKTJ8w6GMGoog1hW/C4ufPvw8wwMRe0UWdB+I754tds1K3o927fZIvimHg== # Sandbox Private Key
+  public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlFOlPEQQsdxNCloYBz/E9IlOvtSfQ+0XruEt7G/ynPuVp6tLqULoPpN/xfB1RLwpftqwuNapeyIJC7H36BZoJ6S/bMIQYjKVULHIp+D3yWms45LoO2zVkvOzeod0M7scUnEox38qMPVRtwZvu+uvYnI7B+JmOFX0OeBfdNVe4QkQY4FmVNPxZ6qHef/c10z8gw8u5XE31osyDdohZYj1DlR3ZRA/OISd0Br7QEvpeaZFmraArmuTNPMIB7MfXBS6hO/dvwcKGEBkQNGqqS1NxyGx6LVyxiYZ2yKKe91jf2XVuTxGt6vmF9DRTZ/EMibfbqv6OB3rNklvlALO13W8NQIDAQAB # Alipay Public Key (支付宝公钥，不是应用公钥!)
+  gateway-url: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+  return-url: http://localhost:3000/payment/result
+  notify-url: http://localhost:8080/api/payment/alipay/notify # 必须是公网可访问地址 (e.g. using ngrok)，localhost无法接收支付宝回调

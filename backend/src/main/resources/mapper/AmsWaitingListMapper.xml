@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trae.ams.mapper.AmsWaitingListMapper">
+
+    <resultMap id="BaseResultMap" type="com.trae.ams.entity.AmsWaitingList">
+        <id column="id" property="id" />
+        <result column="store_id" property="storeId" />
+        <result column="customer_id" property="customerId" />
+        <result column="service_id" property="serviceId" />
+        <result column="tech_id" property="techId" />
+        <result column="expected_date" property="expectedDate" />
+        <result column="time_range" property="timeRange" />
+        <result column="people_count" property="peopleCount" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="expiry_time" property="expiryTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, store_id, customer_id, service_id, tech_id, expected_date, time_range, people_count, status, create_time, expiry_time
+    </sql>
+
+    <select id="countByStoreIdAndStatus" resultType="int">
+        SELECT COUNT(*) FROM ams_waiting_list
+        WHERE store_id = #{storeId} AND status = #{status}
+    </select>
+
+    <insert id="insert" parameterType="com.trae.ams.entity.AmsWaitingList" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ams_waiting_list (
+            store_id, customer_id, service_id, tech_id, expected_date, time_range, people_count, status, create_time, expiry_time
+        ) VALUES (
+            #{storeId}, #{customerId}, #{serviceId}, #{techId}, #{expectedDate}, #{timeRange}, #{peopleCount}, #{status}, #{createTime}, #{expiryTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.trae.ams.entity.AmsWaitingList">
+        UPDATE ams_waiting_list
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="expiryTime != null">expiry_time = #{expiryTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ams_waiting_list
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByCustomerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ams_waiting_list
+        WHERE customer_id = #{customerId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectDtoByCustomerId" resultMap="DTOResultMap">
+        SELECT w.*,
+               u.nickname as customer_name,
+               u.username as customer_phone,
+               s.name as service_name,
+               t.real_name as tech_name
+        FROM ams_waiting_list w
+        LEFT JOIN sys_user u ON w.customer_id = u.id
+        LEFT JOIN ams_service s ON w.service_id = s.id
+        LEFT JOIN ams_technician_info t ON w.tech_id = t.user_id
+        WHERE w.customer_id = #{customerId}
+        ORDER BY w.create_time DESC
+    </select>
+
+    <select id="selectByDateAndStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ams_waiting_list
+        WHERE store_id = #{storeId}
+          AND expected_date = #{date}
+          AND status = #{status}
+        ORDER BY create_time ASC
+    </select>
+
+    <resultMap id="DTOResultMap" type="com.trae.ams.dto.waitinglist.WaitingListDTO" extends="BaseResultMap">
+        <result column="customer_name" property="customerName"/>
+        <result column="customer_phone" property="customerPhone"/>
+        <result column="service_name" property="serviceName"/>
+        <result column="tech_name" property="techName"/>
+    </resultMap>
+
+    <select id="selectList" resultMap="DTOResultMap">
+        SELECT w.*,
+               u.nickname as customer_name,
+               u.username as customer_phone,
+               s.name as service_name,
+               t.real_name as tech_name
+        FROM ams_waiting_list w
+        LEFT JOIN sys_user u ON w.customer_id = u.id
+        LEFT JOIN ams_service s ON w.service_id = s.id
+        LEFT JOIN ams_technician_info t ON w.tech_id = t.user_id
+        <where>
+            w.store_id = #{storeId}
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (u.nickname LIKE CONCAT('%', #{query.keyword}, '%') OR u.username LIKE CONCAT('%', #{query.keyword}, '%'))
+            </if>
+            <if test="query.status != null and query.status != ''">
+                AND w.status = #{query.status}
+            </if>
+            <if test="query.startDate != null">
+                AND w.expected_date &gt;= #{query.startDate}
+            </if>
+            <if test="query.endDate != null">
+                AND w.expected_date &lt;= #{query.endDate}
+            </if>
+        </where>
+        ORDER BY w.create_time DESC
+    </select>
+
+</mapper>

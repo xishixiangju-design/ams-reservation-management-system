@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trae.ams.mapper.PaymentMethodMapper">
+
+    <resultMap id="BaseResultMap" type="com.trae.ams.entity.PaymentMethod">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="icon" property="icon"/>
+        <result column="status" property="status"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="config" property="config"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM ams_payment_method ORDER BY sort_order ASC
+    </select>
+    
+    <select id="selectActive" resultMap="BaseResultMap">
+        SELECT id, name, code, icon, sort_order FROM ams_payment_method 
+        WHERE status = 1 
+        ORDER BY sort_order ASC
+    </select>
+
+    <insert id="insert" parameterType="com.trae.ams.entity.PaymentMethod" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ams_payment_method (name, code, icon, status, sort_order, config, remark, create_time)
+        VALUES (#{name}, #{code}, #{icon}, #{status}, #{sortOrder}, #{config}, #{remark}, NOW())
+    </insert>
+
+    <update id="update" parameterType="com.trae.ams.entity.PaymentMethod">
+        UPDATE ams_payment_method
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="icon != null">icon = #{icon},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="config != null">config = #{config},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM ams_payment_method WHERE id = #{id}
+    </select>
+</mapper>

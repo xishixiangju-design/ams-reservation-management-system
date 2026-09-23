@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trae.ams.mapper.AmsViolationRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.trae.ams.entity.AmsViolationRecord">
+        <id column="id" property="id" />
+        <result column="store_id" property="storeId" />
+        <result column="user_id" property="userId" />
+        <result column="appt_id" property="apptId" />
+        <result column="type" property="type" />
+        <result column="violation_time" property="violationTime" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <insert id="insert" parameterType="com.trae.ams.entity.AmsViolationRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ams_violation_record (
+            store_id, user_id, appt_id, type, violation_time, create_time
+        ) VALUES (
+            #{storeId}, #{userId}, #{apptId}, #{type}, #{violationTime}, #{createTime}
+        )
+    </insert>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT * FROM ams_violation_record WHERE user_id = #{userId} ORDER BY create_time DESC
+    </select>
+    
+    <select id="countViolation" resultType="int">
+        SELECT COUNT(*) FROM ams_violation_record 
+        WHERE user_id = #{userId} AND store_id = #{storeId}
+    </select>
+
+</mapper>
